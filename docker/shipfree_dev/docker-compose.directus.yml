@@ -1,0 +1,131 @@
+services:
+  directus:
+    image: directus/directus:11.9.0
+    container_name: directus_shipfree
+    ports:
+      - "8070:8055"
+    volumes:
+      - directus_uploads:/directus/uploads
+      - directus_extensions:/directus/extensions
+    environment:
+      # Database Configuration (using the same PostgreSQL instance)
+      DB_CLIENT: pg
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: directus_db
+      DB_USER: devuser
+      DB_PASSWORD: devpass
+      DB_SSL: false
+
+      # Directus Configuration
+      KEY: 255d861b-5ea1-5996-9aa3-922530ec40b1
+      SECRET: 6116487b-cda1-52c2-b5b5-c8022c45e263
+
+      # Admin User
+      ADMIN_EMAIL: admin@shipfree.dev
+      ADMIN_PASSWORD: AdminPassword123!
+
+      # General Settings
+      PUBLIC_URL: http://localhost:8070
+      WEBSOCKETS_ENABLED: true
+
+      # Cache & Performance
+      CACHE_ENABLED: true
+      CACHE_STORE: memory
+      CACHE_TTL: 30m
+      CACHE_AUTO_PURGE: true
+
+      # Assets & Storage
+      STORAGE_LOCATIONS: local
+      STORAGE_LOCAL_DRIVER: local
+      STORAGE_LOCAL_ROOT: /directus/uploads
+      ASSETS_CACHE_TTL: 30m
+      ASSETS_TRANSFORM_MAX_CONCURRENT: 25
+
+      # Extensions
+      EXTENSIONS_PATH: /directus/extensions
+      EXTENSIONS_AUTO_RELOAD: true
+
+      # CORS Configuration
+      CORS_ENABLED: true
+      CORS_ORIGIN: true
+      CORS_METHODS: GET,POST,PATCH,DELETE
+      CORS_ALLOWED_HEADERS: Content-Type,Authorization
+
+      # Rate Limiting
+      RATE_LIMITER_ENABLED: true
+      RATE_LIMITER_POINTS: 25
+      RATE_LIMITER_DURATION: 1
+
+      # Email Configuration (Optional)
+      EMAIL_FROM: no-reply@shipfree.dev
+      EMAIL_TRANSPORT: sendmail
+
+      # Security & Authentication
+      ACCESS_TOKEN_TTL: 15m
+      REFRESH_TOKEN_TTL: 7d
+      REFRESH_TOKEN_COOKIE_SECURE: false
+      REFRESH_TOKEN_COOKIE_SAME_SITE: lax
+      SESSION_COOKIE_TTL: 1d
+
+      # Password Policy
+      AUTH_PASSWORD_POLICY: /^.{8,}$/
+
+      # Logging
+      LOG_LEVEL: info
+      LOG_STYLE: pretty
+
+      # Performance
+      QUERY_LIMIT_DEFAULT: 100
+      QUERY_LIMIT_MAX: 5000
+
+      # File Upload
+      FILES_MAX_UPLOAD_SIZE: 100MB
+
+      # GraphQL
+      GRAPHQL_ENABLED: true
+      GRAPHQL_INTROSPECTION: true
+
+      # Content Security Policy
+      CONTENT_SECURITY_POLICY_DIRECTIVES__SCRIPT_SRC: "'self' 'unsafe-eval'"
+      CONTENT_SECURITY_POLICY_DIRECTIVES__OBJECT_SRC: "'none'"
+      CONTENT_SECURITY_POLICY_DIRECTIVES__BASE_URI: "'self'"
+      CONTENT_SECURITY_POLICY_DIRECTIVES__FRAME_ANCESTORS: "'none'"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8055/server/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 45s
+
+  # Database initialization for Directus
+  directus-db-init:
+    image: postgres:17.6-alpine
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: devpass
+    command: >
+      sh -c "
+        echo 'Waiting for PostgreSQL to be ready...' &&
+        sleep 5 &&
+        echo 'Creating Directus database if it does not exist...' &&
+        psql -h postgres -U devuser -d shipfreedev -c 'CREATE DATABASE directus_db;' 2>/dev/null ||
+        echo 'Database directus_db already exists or creation failed, continuing...' &&
+        echo 'Setting up database permissions...' &&
+        psql -h postgres -U devuser -d directus_db -c 'CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";' 2>/dev/null ||
+        echo 'Extensions setup completed or failed, continuing...'
+      "
+    restart: "no"
+
+volumes:
+  directus_uploads:
+    name: shipfree_dev_directus_uploads
+  directus_extensions:
+    name: shipfree_dev_directus_extensions
