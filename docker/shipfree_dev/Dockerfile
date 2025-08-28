@@ -5,8 +5,8 @@ WORKDIR /app
 # Copy package files
 COPY package.json ./
 
-# Update Next.js to latest version and install dependencies
-RUN npm install next@latest react@latest react-dom@latest && \
+# Update Next.js to latest version and install dependencies including Directus SDK
+RUN npm install next@latest react@latest react-dom@latest @directus/sdk && \
     npm install && \
     npm audit fix --force || true
 

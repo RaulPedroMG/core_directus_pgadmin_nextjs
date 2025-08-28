@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { Zap, X } from "lucide-react";
+import { Zap, X, User, LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getGitHubStars } from "@/utils/github";
+import { useDirectusAuth } from "@/hooks/useDirectusAuth";
 
 export default function Navbar() {
   const [stars, setStars] = useState<number | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, isAuthenticated, logout } = useDirectusAuth();
   const repo = "idee8/shipfree";
 
   useEffect(() => {
@@ -23,6 +25,17 @@ export default function Navbar() {
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    setIsMenuOpen(false);
+  };
+
+  const getUserDisplayName = () => {
+    if (user?.first_name) return user.first_name;
+    if (user?.email) return user.email.split("@")[0];
+    return "Usuario";
   };
 
   return (
@@ -83,6 +96,33 @@ export default function Navbar() {
               </span>
             )}
           </a>
+
+          {isAuthenticated ? (
+            <div className="flex items-center gap-2">
+              <Link
+                href="/directus-dashboard"
+                className="flex items-center gap-2 rounded-md bg-[#2C2C2C] px-4 py-2 text-sm text-white/90 transition hover:bg-[#3C3C3C]"
+              >
+                <User className="h-4 w-4" />
+                {getUserDisplayName()}
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 rounded-md bg-red-600 px-4 py-2 text-sm text-white transition hover:bg-red-700"
+              >
+                <LogOut className="h-4 w-4" />
+                Salir
+              </button>
+            </div>
+          ) : (
+            <Link
+              href="/directus-login"
+              className="flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm text-white transition hover:bg-blue-700"
+            >
+              <User className="h-4 w-4" />
+              Iniciar sesión
+            </Link>
+          )}
         </div>
 
         <div className="flex md:hidden">
@@ -167,6 +207,35 @@ export default function Navbar() {
                 </span>
               )}
             </a>
+
+            {isAuthenticated ? (
+              <>
+                <Link
+                  href="/directus-dashboard"
+                  className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-white/90 hover:bg-[#3C3C3C] hover:text-white"
+                  onClick={toggleMenu}
+                >
+                  <User className="h-4 w-4" />
+                  Mi perfil ({getUserDisplayName()})
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-white/90 hover:bg-red-600 hover:text-white w-full text-left"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Cerrar sesión
+                </button>
+              </>
+            ) : (
+              <Link
+                href="/directus-login"
+                className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-white/90 hover:bg-blue-600 hover:text-white"
+                onClick={toggleMenu}
+              >
+                <User className="h-4 w-4" />
+                Iniciar sesión
+              </Link>
+            )}
           </div>
         </div>
       )}
