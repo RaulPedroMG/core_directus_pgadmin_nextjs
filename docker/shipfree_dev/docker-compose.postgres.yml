@@ -9,6 +9,8 @@ services:
       - NODE_ENV=development
       - DATABASE_URL=postgresql://devuser:devpass@postgres:5432/shipfreedev
       - NEXT_PUBLIC_DIRECTUS_URL=http://localhost:8070
+      - NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRldmVsb3BtZW50Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2NDc4NzAyNzUsImV4cCI6MTk2MzQ0NjI3NX0.fake_key_for_development
       - HUSKY=0
     volumes:
       - ../../:/app

@@ -22,7 +22,10 @@ export function DirectusLoginForm() {
     const success = await login(email, password);
 
     if (success) {
-      router.push("/dashboard");
+      // Add a small delay to ensure auth state is properly set
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 500);
     }
   };
 
@@ -48,9 +51,7 @@ export function DirectusLoginForm() {
                 <h3 className="text-sm font-medium text-red-800">
                   Error de autenticación
                 </h3>
-                <div className="mt-2 text-sm text-red-700">
-                  {error}
-                </div>
+                <div className="mt-2 text-sm text-red-700">{error}</div>
               </div>
             </div>
           </div>

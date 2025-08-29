@@ -100,7 +100,7 @@ export default function Navbar() {
           {isAuthenticated ? (
             <div className="flex items-center gap-2">
               <Link
-                href="/directus-dashboard"
+                href="/dashboard"
                 className="flex items-center gap-2 rounded-md bg-[#2C2C2C] px-4 py-2 text-sm text-white/90 transition hover:bg-[#3C3C3C]"
               >
                 <User className="h-4 w-4" />
@@ -211,7 +211,7 @@ export default function Navbar() {
             {isAuthenticated ? (
               <>
                 <Link
-                  href="/directus-dashboard"
+                  href="/dashboard"
                   className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-white/90 hover:bg-[#3C3C3C] hover:text-white"
                   onClick={toggleMenu}
                 >

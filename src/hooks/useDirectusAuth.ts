@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { directusAuth, DirectusUser } from "@/lib/directus/client";
 
 interface UseDirectusAuthReturn {
@@ -19,6 +19,7 @@ export function useDirectusAuth(): UseDirectusAuthReturn {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const initializingRef = useRef(false);
 
   // Function to clear error
   const clearError = useCallback(() => {
@@ -26,10 +27,22 @@ export function useDirectusAuth(): UseDirectusAuthReturn {
   }, []);
 
   // Function to refresh user data
-  const refreshUser = useCallback(async () => {
+  const refreshUser = useCallback(async (skipLoading = false) => {
     try {
-      setIsLoading(true);
+      if (!skipLoading) {
+        setIsLoading(true);
+      }
       setError(null);
+
+      const hasToken = directusAuth.getToken();
+      if (!hasToken) {
+        setUser(null);
+        setIsAuthenticated(false);
+        if (!skipLoading) {
+          setIsLoading(false);
+        }
+        return;
+      }
 
       const result = await directusAuth.getCurrentUser();
 
@@ -39,20 +52,20 @@ export function useDirectusAuth(): UseDirectusAuthReturn {
       } else {
         setUser(null);
         setIsAuthenticated(false);
-        // Don't set error here as this is normal when not logged in
+        // Only show error if we expected to be authenticated
+        if (hasToken && result.error) {
+          directusAuth.removeToken();
+        }
       }
     } catch (err: any) {
       console.error("Error refreshing user:", err);
-      // Only set error if we had a token (was expecting to be authenticated)
-      const hasToken = directusAuth.getToken();
-      if (hasToken) {
-        setError("Sesión expirada. Por favor, inicia sesión nuevamente.");
-        directusAuth.removeToken();
-      }
       setUser(null);
       setIsAuthenticated(false);
+      directusAuth.removeToken();
     } finally {
-      setIsLoading(false);
+      if (!skipLoading) {
+        setIsLoading(false);
+      }
     }
   }, []);
 
@@ -67,18 +80,19 @@ export function useDirectusAuth(): UseDirectusAuthReturn {
 
         if (result.success) {
           // After successful login, refresh user data
-          await refreshUser();
+          await refreshUser(true);
+          setIsLoading(false);
           return true;
         } else {
           setError(result.error || "Login failed");
+          setIsLoading(false);
           return false;
         }
       } catch (err: any) {
         console.error("Login error:", err);
         setError(err.message || "Login failed");
-        return false;
-      } finally {
         setIsLoading(false);
+        return false;
       }
     },
     [refreshUser]
@@ -118,14 +132,28 @@ export function useDirectusAuth(): UseDirectusAuthReturn {
   // Initialize auth state on mount
   useEffect(() => {
     const initializeAuth = async () => {
-      // Check if we have a token stored
-      const token = directusAuth.getToken();
+      if (initializingRef.current) return;
+      initializingRef.current = true;
 
-      if (token) {
-        // Try to get current user with stored token
-        await refreshUser();
-      } else {
+      try {
+        // Check if we have a token stored
+        const token = directusAuth.getToken();
+
+        if (token) {
+          // Try to get current user with stored token
+          await refreshUser();
+        } else {
+          setIsLoading(false);
+          setIsAuthenticated(false);
+          setUser(null);
+        }
+      } catch (error) {
+        console.error("Auth initialization error:", error);
         setIsLoading(false);
+        setIsAuthenticated(false);
+        setUser(null);
+      } finally {
+        initializingRef.current = false;
       }
     };
 
