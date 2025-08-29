@@ -45,7 +45,6 @@ export function useDirectusAuth(): UseDirectusAuthReturn {
       }
 
       const result = await directusAuth.getCurrentUser();
-
       if (result.success && result.data) {
         setUser(result.data as DirectusUser);
         setIsAuthenticated(true);

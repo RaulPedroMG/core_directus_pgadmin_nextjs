@@ -103,27 +103,6 @@ services:
       retries: 5
       start_period: 45s
 
-  # Database initialization for Directus
-  directus-db-init:
-    image: postgres:17.6-alpine
-    depends_on:
-      postgres:
-        condition: service_healthy
-    environment:
-      PGPASSWORD: devpass
-    command: >
-      sh -c "
-        echo 'Waiting for PostgreSQL to be ready...' &&
-        sleep 5 &&
-        echo 'Creating Directus database if it does not exist...' &&
-        psql -h postgres -U devuser -d shipfreedev -c 'CREATE DATABASE directus_db;' 2>/dev/null ||
-        echo 'Database directus_db already exists or creation failed, continuing...' &&
-        echo 'Setting up database permissions...' &&
-        psql -h postgres -U devuser -d directus_db -c 'CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";' 2>/dev/null ||
-        echo 'Extensions setup completed or failed, continuing...'
-      "
-    restart: "no"
-
 volumes:
   directus_uploads:
     name: shipfree_dev_directus_uploads

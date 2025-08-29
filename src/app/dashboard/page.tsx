@@ -50,7 +50,7 @@ export default function Dashboard() {
   };
 
   // Show loading state during initial authentication check
-  if (isLoading || (isAuthenticated === false && user === null && !error)) {
+  if (isLoading || (isAuthenticated === false && user === null)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">

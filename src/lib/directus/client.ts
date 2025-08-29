@@ -78,7 +78,7 @@ export const directusAuth = {
   logout: async () => {
     try {
       const client = getDirectusClient();
-      await client.logout();
+      await client.logout(); // puede devolver 204 vacío, no es error
 
       // Clear stored tokens
       if (typeof window !== "undefined") {
@@ -88,15 +88,21 @@ export const directusAuth = {
 
       return { success: true };
     } catch (error: any) {
-      console.error("Directus logout error:", error);
+      console.error("Directus logout error:", {
+        message: error?.message,
+        response: error?.response,
+        stack: error?.stack,
+      });
+
       // Always clear tokens even if server logout fails
       if (typeof window !== "undefined") {
         localStorage.removeItem("directus_access_token");
         localStorage.removeItem("directus_refresh_token");
       }
+
       return {
         success: false,
-        error: error.message || "Logout failed",
+        error: error?.message || "Logout failed",
       };
     }
   },
