@@ -2,22 +2,38 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy package files
-COPY package.json ./
+# Install dependencies for better compatibility
+RUN apk add --no-cache libc6-compat
 
-# Update Next.js to latest version and install dependencies including Directus SDK
-RUN npm install
+# Copy package files for dependency installation
+COPY package.json package-lock.json* ./
+
+# Install dependencies
+RUN npm ci
 
 # Copy source code
 COPY . .
 
+# Create a startup script that clears cache and starts dev server
+RUN echo '#!/bin/sh' > /start.sh && \
+    echo 'echo "Starting Next.js development server..."' >> /start.sh && \
+    echo 'echo "Clearing Next.js cache..."' >> /start.sh && \
+    echo 'rm -rf .next .turbo' >> /start.sh && \
+    echo 'echo "Starting server without Turbopack to avoid Docker issues..."' >> /start.sh && \
+    echo 'npm run dev:docker' >> /start.sh && \
+    chmod +x /start.sh
+
+# Create .next directory with proper permissions
+RUN mkdir -p .next && chown -R node:node .next /start.sh
+
+# Clear any existing build artifacts and cache
+RUN rm -rf .next/* && rm -rf .turbo
+
 # Expose port
 EXPOSE 3000
 
-# Create a startup script that handles database initialization
-RUN echo '#!/bin/sh' > /start.sh && \
-    echo 'npm run dev' >> /start.sh && \
-    chmod +x /start.sh
+# Switch to non-root user
+USER node
 
 # Development command
 CMD ["/start.sh"]

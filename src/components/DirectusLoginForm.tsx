@@ -7,7 +7,7 @@ import { useDirectusAuth } from "@/hooks/useDirectusAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, ArrowLeft, Home } from "lucide-react";
 
 export function DirectusLoginForm() {
   const [email, setEmail] = useState("");
@@ -32,7 +32,18 @@ export function DirectusLoginForm() {
   return (
     <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-        <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
+        {/* Navegación superior */}
+        <div className="flex justify-between items-center mb-6">
+          <Link
+            href="/"
+            className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Volver al inicio
+          </Link>
+        </div>
+
+        <h2 className="mt-4 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
           Iniciar sesión con Directus
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
@@ -114,29 +125,37 @@ export function DirectusLoginForm() {
           </Button>
         </form>
 
-        <div className="text-center">
-          <p className="text-sm text-gray-600">
-            ¿No tienes una cuenta?{" "}
-            <Link
-              href="http://localhost:8070"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium text-blue-600 hover:text-blue-500 hover:underline"
-            >
-              Contacta al administrador
-            </Link>
-          </p>
-          <p className="mt-2 text-xs text-gray-500">
-            Las cuentas se gestionan desde{" "}
-            <Link
-              href="http://localhost:8070"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:underline"
-            >
-              Directus Admin
-            </Link>
-          </p>
+        <div className="text-center space-y-4">
+          <div className="border-t pt-4">
+            <p className="text-sm text-gray-600">
+              ¿No tienes una cuenta?{" "}
+              <Link
+                href={
+                  process.env.NEXT_PUBLIC_DIRECTUS_URL ||
+                  "http://localhost:8070"
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-blue-600 hover:text-blue-500 hover:underline"
+              >
+                Contacta al administrador
+              </Link>
+            </p>
+            <p className="mt-2 text-xs text-gray-500">
+              Las cuentas se gestionan desde{" "}
+              <Link
+                href={
+                  process.env.NEXT_PUBLIC_DIRECTUS_URL ||
+                  "http://localhost:8070"
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline"
+              >
+                Directus Admin
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>

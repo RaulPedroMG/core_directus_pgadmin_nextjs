@@ -108,6 +108,12 @@ export function useDirectusAuth(): UseDirectusAuthReturn {
       setIsAuthenticated(false);
       directusAuth.removeToken();
 
+      // Force immediate state update
+      setTimeout(() => {
+        setUser(null);
+        setIsAuthenticated(false);
+      }, 0);
+
       // Try to logout from server, but don't fail if it doesn't work
       try {
         await directusAuth.logout();
@@ -117,6 +123,9 @@ export function useDirectusAuth(): UseDirectusAuthReturn {
           logoutErr
         );
       }
+
+      // Additional cleanup - force refresh any cached data
+      window.dispatchEvent(new Event("directus-logout"));
     } catch (err: any) {
       console.error("Logout error:", err);
       // Even if there's an error, ensure local state is cleared
@@ -158,6 +167,75 @@ export function useDirectusAuth(): UseDirectusAuthReturn {
 
     initializeAuth();
   }, [refreshUser]);
+
+  // Listen for storage changes (logout from other tabs/windows)
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "directus_access_token") {
+        if (!e.newValue && isAuthenticated) {
+          // Token was removed, user logged out
+          console.log(
+            "useDirectusAuth: Token removed from storage, logging out"
+          );
+          setUser(null);
+          setIsAuthenticated(false);
+          setIsLoading(false);
+        } else if (e.newValue && !isAuthenticated) {
+          // Token was added, user logged in from another tab
+          console.log(
+            "useDirectusAuth: Token added to storage, refreshing user"
+          );
+          refreshUser();
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, [isAuthenticated, refreshUser]);
+
+  // Listen for custom logout events
+  useEffect(() => {
+    const handleLogoutEvent = () => {
+      console.log("useDirectusAuth: Received logout event");
+      setUser(null);
+      setIsAuthenticated(false);
+      setIsLoading(false);
+    };
+
+    window.addEventListener("directus-logout", handleLogoutEvent);
+    return () =>
+      window.removeEventListener("directus-logout", handleLogoutEvent);
+  }, []);
+
+  // Periodic token validation (every 10 seconds when authenticated)
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const interval = setInterval(async () => {
+      const token = directusAuth.getToken();
+      if (!token) {
+        console.log("useDirectusAuth: Token missing during periodic check");
+        setUser(null);
+        setIsAuthenticated(false);
+        return;
+      }
+
+      // Optional: Validate token with server (uncomment if needed)
+      /*
+      try {
+        await directusAuth.getCurrentUser();
+      } catch (error) {
+        console.log("useDirectusAuth: Token invalid during periodic check");
+        setUser(null);
+        setIsAuthenticated(false);
+        directusAuth.removeToken();
+      }
+      */
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
 
   return {
     user,

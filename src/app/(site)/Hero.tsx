@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Zap } from "lucide-react";
-import Image from "next/image";
+import TechStackImage from "@/components/TechStackImage";
 
 const HeroSection = () => {
   return (
@@ -43,15 +43,15 @@ const HeroSection = () => {
           <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
             <div className="flex -space-x-3">
               {[
-                "https://pbs.twimg.com/profile_images/1490075268928655364/L-PTx3nW_400x400.jpg",
-                "https://pbs.twimg.com/profile_images/1855635236509388800/PFMQ949e_400x400.jpg",
-                "https://pbs.twimg.com/profile_images/933422170499371008/drhhIn0z_400x400.jpg",
-                "https://pbs.twimg.com/profile_images/1870096957370445827/PQrjfHGt_400x400.jpg",
-                "https://pbs.twimg.com/profile_images/1933139628044832768/8dSUDBN7_400x400.jpg",
+                "/avatar-placeholder.svg",
+                "/avatar-placeholder-2.svg",
+                "/avatar-placeholder-3.svg",
+                "/avatar-placeholder-4.svg",
+                "/avatar-placeholder.svg",
               ].map((avatar, index) => (
                 <img
                   key={index}
-                  src={avatar || "/placeholder.svg"}
+                  src={avatar}
                   alt={`User ${index + 1}`}
                   className="w-8 sm:w-10 h-8 sm:h-10 rounded-full border-2 border-zinc-900"
                 />
@@ -79,12 +79,9 @@ const HeroSection = () => {
           </div>
         </div>
         <div className="w-full lg:w-2/5 flex justify-center lg:justify-end">
-          <Image
-            src="/techstack.svg"
+          <TechStackImage
+            className="w-full max-w-md lg:max-w-full"
             alt="Tech Stack"
-            width={500}
-            height={500}
-            className="w-full max-w-md lg:max-w-full h-auto"
           />
         </div>
       </div>

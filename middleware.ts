@@ -1,8 +1,15 @@
-import { type NextRequest } from "next/server";
-import { updateSession } from "@/lib/supabase/middleware";
+import { type NextRequest, NextResponse } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  return await updateSession(request);
+  // Simplified middleware to avoid hanging during development
+  // TODO: Re-enable full Directus middleware after fixing connection issues
+
+  console.log(
+    `Middleware: Processing ${request.method} ${request.nextUrl.pathname}`
+  );
+
+  // Simply pass through all requests for now
+  return NextResponse.next();
 }
 
 export const config = {
@@ -12,8 +19,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * Feel free to modify this pattern to include more paths.
+     * - api routes (to avoid interference)
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|api|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
