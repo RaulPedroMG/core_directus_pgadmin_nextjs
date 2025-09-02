@@ -45,7 +45,7 @@ export default function PricingSection() {
               <Feature>SEO & Blog</Feature>
               <Feature>Mailgun emails</Feature>
               <Feature>Stripe / Lemon Squeezy</Feature>
-              <Feature>MongoDB / Supabase</Feature>
+              <Feature>PostgreSQL / Directus</Feature>
               <Feature>Google OAuth & Magic Links</Feature>
               <Feature>Components & animations</Feature>
               <Feature>ChatGPT prompts for terms & privacy</Feature>

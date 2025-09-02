@@ -29,10 +29,10 @@ services:
       PUBLIC_URL: http://localhost:8070
       WEBSOCKETS_ENABLED: true
 
-      # Cache & Performance
+      # Cache & Performance (1s TTL for immediate changes)
       CACHE_ENABLED: true
       CACHE_STORE: memory
-      CACHE_TTL: 30m
+      CACHE_TTL: 1s
       CACHE_AUTO_PURGE: true
 
       # Assets & Storage

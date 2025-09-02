@@ -43,11 +43,11 @@ const HeroSection = () => {
           <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
             <div className="flex -space-x-3">
               {[
-                "/avatar-placeholder.svg",
-                "/avatar-placeholder-2.svg",
-                "/avatar-placeholder-3.svg",
-                "/avatar-placeholder-4.svg",
-                "/avatar-placeholder.svg",
+                "https://avatars.githubusercontent.com/u/9113740?s=80&v=4", // Dan Abramov
+                "https://avatars.githubusercontent.com/u/810438?s=80&v=4", // Dan Abramov React team
+                "https://avatars.githubusercontent.com/u/4060187?s=80&v=4", // Guillermo Rauch (Vercel CEO)
+                "https://avatars.githubusercontent.com/u/229881?s=80&v=4", // Sindre Sorhus
+                "https://avatars.githubusercontent.com/u/13700?s=80&v=4", // TJ Holowaychuk
               ].map((avatar, index) => (
                 <img
                   key={index}

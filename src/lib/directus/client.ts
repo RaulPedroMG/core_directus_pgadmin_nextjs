@@ -277,42 +277,4 @@ export const directusAuth = {
       client.setToken(null);
     }
   },
-
-  // Supabase-compatible API methods
-  auth: {
-    getUser: async () => {
-      const result = await directusAuth.getCurrentUser();
-      if (result.success) {
-        return { data: { user: result.data }, error: null };
-      } else {
-        return { data: { user: null }, error: { message: result.error } };
-      }
-    },
-
-    signInWithPassword: async ({
-      email,
-      password,
-    }: {
-      email: string;
-      password: string;
-    }) => {
-      const result = await directusAuth.login(email, password);
-      if (result.success) {
-        const userResult = await directusAuth.getCurrentUser();
-        return {
-          data: { user: userResult.success ? userResult.data : null },
-          error: null,
-        };
-      } else {
-        return { data: { user: null }, error: { message: result.error } };
-      }
-    },
-
-    signOut: async () => {
-      const result = await directusAuth.logout();
-      return result.success
-        ? { error: null }
-        : { error: { message: result.error } };
-    },
-  },
 };
