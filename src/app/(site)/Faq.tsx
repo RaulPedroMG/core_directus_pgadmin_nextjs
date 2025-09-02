@@ -30,7 +30,7 @@ const faqs: FAQItem[] = [
   },
   {
     question: "Does ShipFree include a database?",
-    answer: "Yes! It supports MongoDB and Supabase out of the box.",
+    answer: "Yes! It supports PostgreSQL with Directus CMS out of the box.",
   },
   {
     question: "Is there a community I can join?",

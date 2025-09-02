@@ -12,9 +12,116 @@ ShipFree is a free alternative to ShipFast, designed to simplify and optimize yo
 - Email notifications via Mailgun
 - Modern UI built with Next.js and TailwindCSS
 
+## 🔧 Environment Configuration
+
+ShipFree uses environment variables for configuration with separate files for development and production.
+
+### Environment Files
+
+- **`.env.example`**: Template with all available variables (safe to commit)
+- **`.env.dev`**: Development environment configuration
+- **`.env.prod`**: Production environment configuration
+- **`.env`**: Information file with setup instructions
+
+### Setting up Environment Variables
+
+1. **For development**:
+   ```bash
+   cp .env.example .env.dev
+   
+   # Edit .env.dev with your development values
+   nano .env.dev
+   
+   # Start development environment
+   ./start-dev.sh
+   ```
+
+2. **For production**:
+   ```bash
+   cp .env.example .env.prod
+   
+   # Edit .env.prod with secure production values
+   nano .env.prod
+   
+   # Start production environment
+   ./start-prod.sh
+   ```
+
+### Environment Variables Overview
+
+- **Database**: PostgreSQL connection and credentials
+- **Ports**: Configurable ports for all services
+- **Directus CMS**: URL configuration and admin credentials  
+- **Payment**: Stripe and LemonSqueezy API keys
+- **Email**: Mailgun configuration
+- **Security**: Production security settings
+
+### Port Configuration
+
+All services use configurable ports defined in environment variables:
+
+**Development Ports (default):**
+- 🌐 **Application**: `3070`
+- 🗄️ **PostgreSQL**: `5470` 
+- 🎛️ **Directus CMS**: `8070`
+- 🛠️ **pgAdmin**: `5070`
+- 📊 **Portainer**: `9070`
+
+**Production Ports (default):**
+- 🌐 **Application**: `3000`
+- 🗄️ **PostgreSQL**: `5432`
+- 📊 **Portainer**: `9000`
+
+You can customize these ports by modifying the respective variables in your `.env.dev` or `.env.prod` file.
+
+> 🔒 **Security Note**: All environment files (except `.env.example`) are protected by `.gitignore` and won't be committed to the repository.
+
 ## Docker Setup
 
-ShipFree provides Docker configurations for both **development** and **production** environments. Below, you'll find the structure of the Docker files and the commands to get started.
+ShipFree provides Docker configurations for both **development** and **production** environments with simplified setup scripts.
+
+### Quick Start
+
+1. **Development Environment**:
+   ```bash
+   ./start-dev.sh
+   ```
+
+2. **Production Environment**:
+   ```bash
+   ./start-prod.sh
+   ```
+
+> 💡 These scripts handle environment validation, startup, and service health checks automatically.
+
+### Manual Commands (Alternative)
+
+If you prefer to run commands manually:
+
+1. **Development Environment**:
+   ```bash
+   # Validate environment
+   ./scripts/validate-env.sh
+   
+   # Start containers
+   docker compose --env-file .env.dev \
+     -f docker/shipfree_dev/docker-compose.yml \
+     -f docker/shipfree_dev/docker-compose.postgres.yml \
+     -f docker/shipfree_dev/docker-compose.directus.yml \
+     up -d --build
+   ```
+
+2. **Production Environment**:
+   ```bash
+   # Validate environment
+   ./scripts/validate-env-prod.sh
+   
+   # Start containers
+   docker compose --env-file .env.prod \
+     -f docker/prod/docker-compose.yml \
+     -f docker/prod/docker-compose.postgres.yml \
+     up -d --build
+   ```
 
 ### Docker File Structure
 
@@ -41,20 +148,31 @@ In development, the project runs in **watch mode**, meaning it automatically det
 #### Commands for Development
 
 1. **Base Setup** (without a database):
+1. **Development (All Services)**:
 
    ```bash
-   docker-compose -f docker/dev/docker-compose.yml up --build
+   ./start-dev.sh
    ```
 
-2. **With PostgreSQL**:
+2. **Production Deployment**:
 
    ```bash
-   docker-compose -f docker/dev/docker-compose.yml -f docker/dev/docker-compose.postgres.yml up --build
+   ./start-prod.sh
    ```
 
-3. **With MongoDB**:
+3. **Stop All Services**:
+
    ```bash
-   docker-compose -f docker/dev/docker-compose.yml -f docker/dev/docker-compose.mongodb.yml up --build
+   # Development
+   docker compose --env-file .env.dev \
+     -f docker/shipfree_dev/docker-compose.yml \
+     -f docker/shipfree_dev/docker-compose.postgres.yml \
+     -f docker/shipfree_dev/docker-compose.directus.yml down
+
+   # Production
+   docker compose --env-file .env.prod \
+     -f docker/prod/docker-compose.yml \
+     -f docker/prod/docker-compose.postgres.yml down
    ```
 
 #### Why Watch Mode?

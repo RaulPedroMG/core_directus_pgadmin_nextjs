@@ -3,28 +3,44 @@ services:
   app:
     image: ghcr.io/idee8/shipfree:latest
     ports:
-      - "3000:3000"
+      - "${APP_PORT_PROD}:${APP_INTERNAL_PORT}"
+    env_file:
+      - ../../.env.prod
     environment:
-      - NODE_ENV=production
-      - DATABASE_URL=postgresql://produser:prodpass@postgres:5432/shipfreeprod
-      - HUSKY=0
+      - NODE_ENV=${NODE_ENV}
+      - DATABASE_URL=${DATABASE_URL}
+      - HUSKY=${HUSKY}
+      - NEXT_PUBLIC_DIRECTUS_URL=${NEXT_PUBLIC_DIRECTUS_URL}
+      - DIRECTUS_INTERNAL_URL=${DIRECTUS_INTERNAL_URL}
+      - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - LEMON_SQUEEZY_API_KEY=${LEMON_SQUEEZY_API_KEY}
+      - LEMON_SQUEEZY_STORE_ID=${LEMON_SQUEEZY_STORE_ID}
+      - LEMON_SQUEEZY_WEBHOOK_SECRET=${LEMON_SQUEEZY_WEBHOOK_SECRET}
+      - MAILGUN_API_KEY=${MAILGUN_API_KEY}
+      - MAILGUN_DOMAIN=${MAILGUN_DOMAIN}
+      - MAILGUN_FROM_EMAIL=${MAILGUN_FROM_EMAIL}
+      - MAILGUN_SIGNING_KEY=${MAILGUN_SIGNING_KEY}
     restart: unless-stopped
     depends_on:
       postgres:
         condition: service_healthy
 
   postgres:
-    image: postgres:15-alpine
+    image: postgres:17.6-alpine
+    env_file:
+      - ../../.env.prod
     environment:
-      - POSTGRES_USER=produser
-      - POSTGRES_PASSWORD=prodpass
-      - POSTGRES_DB=shipfreeprod
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT_PROD}:${POSTGRES_INTERNAL_PORT}"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U produser -d shipfreeprod"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -32,7 +48,9 @@ services:
   portainer:
     image: portainer/portainer-ce:latest
     ports:
-      - "9000:9000"
+      - "${PORTAINER_PORT_PROD}:${PORTAINER_INTERNAL_PORT}"
+    env_file:
+      - ../../.env.prod
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
