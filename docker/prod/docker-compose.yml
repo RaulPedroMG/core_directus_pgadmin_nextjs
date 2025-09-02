@@ -3,16 +3,33 @@ services:
   app:
     image: ghcr.io/idee8/shipfree:latest
     ports:
-      - "3000:3000"
+      - "${APP_PORT_PROD}:${APP_INTERNAL_PORT}"
+    env_file:
+      - ../../.env.prod
     environment:
-      - NODE_ENV=production
-      - HUSKY=0
+      - NODE_ENV=${NODE_ENV}
+      - HUSKY=${HUSKY}
+      - DATABASE_URL=${DATABASE_URL}
+      - NEXT_PUBLIC_DIRECTUS_URL=${NEXT_PUBLIC_DIRECTUS_URL}
+      - DIRECTUS_INTERNAL_URL=${DIRECTUS_INTERNAL_URL}
+      - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - LEMON_SQUEEZY_API_KEY=${LEMON_SQUEEZY_API_KEY}
+      - LEMON_SQUEEZY_STORE_ID=${LEMON_SQUEEZY_STORE_ID}
+      - LEMON_SQUEEZY_WEBHOOK_SECRET=${LEMON_SQUEEZY_WEBHOOK_SECRET}
+      - MAILGUN_API_KEY=${MAILGUN_API_KEY}
+      - MAILGUN_DOMAIN=${MAILGUN_DOMAIN}
+      - MAILGUN_FROM_EMAIL=${MAILGUN_FROM_EMAIL}
+      - MAILGUN_SIGNING_KEY=${MAILGUN_SIGNING_KEY}
     restart: unless-stopped
 
   portainer:
     image: portainer/portainer-ce:latest
     ports:
-      - "9000:9000"
+      - "${PORTAINER_PORT_PROD}:${PORTAINER_INTERNAL_PORT}"
+    env_file:
+      - ../../.env.prod
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data

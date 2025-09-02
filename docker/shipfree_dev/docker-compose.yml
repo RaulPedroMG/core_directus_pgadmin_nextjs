@@ -4,7 +4,9 @@ services:
       context: ../..
       dockerfile: docker/shipfree_dev/Dockerfile
     ports:
-      - "3070:3000"
+      - "${APP_PORT_DEV}:${APP_INTERNAL_PORT}"
+    env_file:
+      - ../../.env.dev
     environment:
       - NODE_ENV=development
       - HUSKY=0
@@ -16,7 +18,9 @@ services:
   portainer:
     image: portainer/portainer-ce:latest
     ports:
-      - "9070:9000"
+      - "${PORTAINER_PORT_DEV}:${PORTAINER_INTERNAL_PORT}"
+    env_file:
+      - ../../.env.dev
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data

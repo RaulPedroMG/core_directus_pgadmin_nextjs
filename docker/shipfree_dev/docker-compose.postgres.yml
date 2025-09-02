@@ -4,14 +4,25 @@ services:
       context: ../..
       dockerfile: docker/shipfree_dev/Dockerfile
     ports:
-      - "3070:3000"
+      - "${APP_PORT_DEV}:${APP_INTERNAL_PORT}"
+    env_file:
+      - ../../.env.dev
     environment:
-      - NODE_ENV=development
-      - DATABASE_URL=postgresql://devuser:devpass@postgres:5432/shipfreedev
-      - NEXT_PUBLIC_DIRECTUS_URL=http://localhost:8070
-      - DIRECTUS_INTERNAL_URL=http://directus_shipfree:8055
-
-      - HUSKY=0
+      - NODE_ENV=${NODE_ENV}
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - NEXT_PUBLIC_DIRECTUS_URL=${NEXT_PUBLIC_DIRECTUS_URL}
+      - DIRECTUS_INTERNAL_URL=${DIRECTUS_INTERNAL_URL}
+      - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - LEMON_SQUEEZY_API_KEY=${LEMON_SQUEEZY_API_KEY}
+      - LEMON_SQUEEZY_STORE_ID=${LEMON_SQUEEZY_STORE_ID}
+      - LEMON_SQUEEZY_WEBHOOK_SECRET=${LEMON_SQUEEZY_WEBHOOK_SECRET}
+      - MAILGUN_API_KEY=${MAILGUN_API_KEY}
+      - MAILGUN_DOMAIN=${MAILGUN_DOMAIN}
+      - MAILGUN_FROM_EMAIL=${MAILGUN_FROM_EMAIL}
+      - MAILGUN_SIGNING_KEY=${MAILGUN_SIGNING_KEY}
+      - HUSKY=${HUSKY}
     volumes:
       - ../../:/app
       - /app/node_modules
@@ -20,18 +31,20 @@ services:
         condition: service_healthy
   postgres:
     image: postgres:17.6-alpine
+    env_file:
+      - ../../.env.dev
     environment:
-      - POSTGRES_USER=devuser
-      - POSTGRES_PASSWORD=devpass
-      - POSTGRES_DB=shipfreedev
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER_DB_CREATE_PRIVILEGE=true
     ports:
-      - "5470:5432"
+      - "${POSTGRES_PORT_DEV}:${POSTGRES_INTERNAL_PORT}"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init-postgres.sh:/docker-entrypoint-initdb.d/init-postgres.sh
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U devuser -d shipfreedev"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -39,11 +52,13 @@ services:
     # OPTIONAL
   pgadmin:
     image: dpage/pgadmin4
+    env_file:
+      - ../../.env.dev
     environment:
-      - PGADMIN_DEFAULT_EMAIL=admin@example.com
-      - PGADMIN_DEFAULT_PASSWORD=admin
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
     ports:
-      - "5070:80"
+      - "${PGADMIN_PORT_DEV}:${PGADMIN_INTERNAL_PORT}"
     depends_on:
       - postgres
 
@@ -51,7 +66,7 @@ services:
     image: portainer/portainer-ce:latest
     container_name: portainer_shipfree
     ports:
-      - "9070:9000"
+      - "${PORTAINER_PORT_DEV}:${PORTAINER_INTERNAL_PORT}"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data

@@ -3,30 +3,32 @@ services:
     image: directus/directus:11.11.0
     container_name: directus_shipfree
     ports:
-      - "8070:8055"
+      - "${DIRECTUS_PORT_DEV}:${DIRECTUS_INTERNAL_PORT}"
     volumes:
       - directus_uploads:/directus/uploads
       - directus_extensions:/directus/extensions
+    env_file:
+      - ../../.env.dev
     environment:
       # Database Configuration (using the same PostgreSQL instance)
       DB_CLIENT: pg
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_DATABASE: directus_db
-      DB_USER: devuser
-      DB_PASSWORD: devpass
+      DB_HOST: ${DIRECTUS_DB_HOST}
+      DB_PORT: ${DIRECTUS_DB_PORT}
+      DB_DATABASE: ${DIRECTUS_DB_DATABASE}
+      DB_USER: ${DIRECTUS_DB_USER}
+      DB_PASSWORD: ${DIRECTUS_DB_PASSWORD}
       DB_SSL: false
 
       # Directus Configuration
-      KEY: 255d861b-5ea1-5996-9aa3-922530ec40b1
-      SECRET: 6116487b-cda1-52c2-b5b5-c8022c45e263
+      KEY: ${DIRECTUS_KEY}
+      SECRET: ${DIRECTUS_SECRET}
 
       # Admin User
-      ADMIN_EMAIL: admin@shipfree.dev
-      ADMIN_PASSWORD: AdminPassword123!
+      ADMIN_EMAIL: ${DIRECTUS_ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${DIRECTUS_ADMIN_PASSWORD}
 
       # General Settings
-      PUBLIC_URL: http://localhost:8070
+      PUBLIC_URL: ${DIRECTUS_PUBLIC_URL}
       WEBSOCKETS_ENABLED: true
 
       # Cache & Performance (1s TTL for immediate changes)
